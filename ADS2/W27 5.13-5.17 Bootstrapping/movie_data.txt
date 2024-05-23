@@ -1,0 +1,11 @@
+genre	students
+comedy	73
+action	42
+romance	38
+fantasy	28
+science-fiction	22
+horror	19
+crime	18
+documentary	12
+history	8
+war	7

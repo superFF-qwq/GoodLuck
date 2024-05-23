@@ -1,0 +1,101 @@
+"","Name","Time_Point","Phone_Number","Gender","Home_Province","Pain_Level"
+"1","John","3 Weeks","555-366-9107","Male","Province A",2.2
+"2","Alice","3 Weeks","555-228-6732","Female","Province B",2
+"3","Alice","Immediate","555-712-6152","Female","Province C",5.5
+"4","Jane","3 Weeks","555-904-2518","Male","Province C",2.8
+"5","Jane","Immediate","555-584-2801","Female","Province A",6.6
+"6","John","3 Weeks","555-538-2534","Female","Province C",2.4
+"7","Chris","3 Weeks","555-411-7793","Female","Province B",1.5
+"8","Bob","3 Weeks","555-642-9718","Female","Province B",2.5
+"9","Jane","3 Weeks","555-611-9219","Female","Province B",3.7
+"10","Jane","Immediate","555-490-3184","Male","Province C",4.1
+"11","Jane","Immediate","555-216-6538","Female","Province B",7
+"12","Alice","Immediate","555-883-5144","Female","Province C",6.2
+"13","John","Immediate","555-387-6761","Male","Province B",4.8
+"14","Chris","Immediate","555-216-1319","Female","Province C",7.5
+"15","Jane","3 Weeks","555-275-9556","Female","Province A",2.2
+"16","Jane","Immediate","555-122-8739","Female","Province A",6.6
+"17","Chris","Immediate","555-775-8544","Female","Province B",5.5
+"18","Alice","Immediate","555-369-1987","Male","Province C",6.9
+"19","Bob","Immediate","555-675-2725","Female","Province A",7.7
+"20","John","Immediate","555-564-7243","Female","Province A",4.1
+"21","Bob","Immediate","555-291-3249","Male","Province A",5.8
+"22","Alice","Immediate","555-650-3084","Female","Province C",6.9
+"23","Jane","3 Weeks","555-540-6061","Female","Province A",3.1
+"24","John","3 Weeks","555-445-7836","Female","Province C",1.5
+"25","John","Immediate","555-277-9614","Male","Province A",6.6
+"26","Bob","Immediate","555-334-4780","Male","Province B",6.4
+"27","Chris","3 Weeks","555-684-9651","Female","Province B",2.6
+"28","John","Immediate","555-675-5372","Female","Province B",6.8
+"29","Bob","3 Weeks","555-852-9960","Female","Province B",2.5
+"30","Alice","Immediate","555-419-6765","Female","Province C",4
+"31","Bob","3 Weeks","555-490-2589","Female","Province B",2.1
+"32","Alice","Immediate","555-394-6942","Female","Province A",6.7
+"33","John","Immediate","555-152-9665","Female","Province B",4.2
+"34","Chris","Immediate","555-803-9644","Male","Province C",6.9
+"35","Chris","Immediate","555-233-8853","Male","Province A",5.1
+"36","Alice","3 Weeks","555-476-2308","Male","Province A",1.5
+"37","Bob","3 Weeks","555-524-2576","Female","Province C",1.4
+"38","Chris","3 Weeks","555-449-6951","Female","Province C",3.9
+"39","Chris","3 Weeks","555-289-9210","Female","Province B",1.4
+"40","John","Immediate","555-904-8496","Male","Province B",6.7
+"41","Chris","3 Weeks","555-617-3303","Male","Province A",0.6
+"42","Jane","Immediate","555-492-7391","Female","Province A",5.6
+"43","Chris","Immediate","555-693-5194","Female","Province B",4.4
+"44","John","Immediate","555-188-9642","Female","Province C",4.7
+"45","John","3 Weeks","555-307-4176","Male","Province A",3.8
+"46","Bob","3 Weeks","555-213-2885","Female","Province C",3.6
+"47","Chris","Immediate","555-576-1081","Male","Province C",6.8
+"48","Bob","3 Weeks","555-653-7115","Male","Province B",1.5
+"49","Jane","3 Weeks","555-176-9012","Male","Province A",1.8
+"50","Jane","Immediate","555-294-5049","Female","Province A",7.8
+"51","Jane","3 Weeks","555-691-3190","Female","Province C",4.4
+"52","John","3 Weeks","555-320-5431","Male","Province A",3.5
+"53","Chris","3 Weeks","555-243-3618","Male","Province A",2.1
+"54","Chris","3 Weeks","555-390-4933","Male","Province A",2.4
+"55","Chris","3 Weeks","555-736-1140","Female","Province B",2.4
+"56","Bob","Immediate","555-321-3140","Female","Province A",5.3
+"57","Jane","Immediate","555-486-9467","Male","Province B",6.2
+"58","Bob","3 Weeks","555-297-3491","Female","Province A",1.2
+"59","Alice","Immediate","555-170-6437","Male","Province A",5.8
+"60","Alice","3 Weeks","555-658-3901","Male","Province C",2.8
+"61","Bob","3 Weeks","555-941-6458","Male","Province B",2.1
+"62","Bob","Immediate","555-711-5371","Female","Province A",8
+"63","Chris","Immediate","555-580-2131","Male","Province C",5.2
+"64","Chris","3 Weeks","555-312-9752","Male","Province C",2.7
+"65","Chris","Immediate","555-877-2599","Female","Province B",5.6
+"66","Bob","3 Weeks","555-979-9918","Male","Province B",2.6
+"67","Alice","3 Weeks","555-266-8974","Female","Province A",2.5
+"68","Chris","3 Weeks","555-738-1752","Female","Province B",1
+"69","John","Immediate","555-358-9514","Female","Province A",4.8
+"70","Bob","3 Weeks","555-721-8214","Female","Province B",3.7
+"71","Jane","3 Weeks","555-362-8142","Male","Province A",2.4
+"72","Bob","3 Weeks","555-454-2232","Female","Province A",3.3
+"73","John","3 Weeks","555-230-3027","Male","Province C",2.1
+"74","John","3 Weeks","555-664-7025","Male","Province B",4.6
+"75","Chris","3 Weeks","555-855-2145","Female","Province B",2.8
+"76","Bob","Immediate","555-206-3564","Female","Province B",7.2
+"77","John","Immediate","555-932-4969","Female","Province A",8.1
+"78","Chris","3 Weeks","555-727-3180","Female","Province C",2.1
+"79","Alice","Immediate","555-431-4605","Male","Province B",6.9
+"80","Bob","Immediate","555-298-6894","Female","Province B",4.9
+"81","Chris","3 Weeks","555-515-6408","Female","Province B",2.6
+"82","John","Immediate","555-900-4387","Male","Province B",5.8
+"83","Chris","3 Weeks","555-894-9422","Female","Province B",0.5
+"84","Bob","3 Weeks","555-527-9636","Female","Province C",2.4
+"85","Jane","Immediate","555-575-7263","Male","Province C",6.8
+"86","Bob","Immediate","555-709-7084","Male","Province C",5.7
+"87","Alice","Immediate","555-124-8011","Female","Province A",5.1
+"88","Bob","Immediate","555-255-5732","Female","Province C",4.3
+"89","Jane","3 Weeks","555-772-8727","Male","Province A",3.4
+"90","Bob","Immediate","555-774-6213","Female","Province C",6.1
+"91","Bob","Immediate","555-862-1971","Male","Province B",6.6
+"92","Bob","Immediate","555-498-2878","Male","Province B",5.8
+"93","Jane","3 Weeks","555-410-6693","Female","Province C",1.8
+"94","Jane","3 Weeks","555-795-4902","Male","Province A",2.9
+"95","Bob","Immediate","555-337-7289","Female","Province C",5.4
+"96","Chris","3 Weeks","555-149-8339","Male","Province B",1.7
+"97","Chris","3 Weeks","555-173-9428","Male","Province C",1.7
+"98","John","3 Weeks","555-874-2340","Male","Province B",2.4
+"99","Alice","Immediate","555-569-4762","Male","Province C",6.3
+"100","John","3 Weeks","555-673-6279","Male","Province C",2.8

@@ -1,0 +1,4 @@
+It is a strange data frame!
+Convert it into several character strings!
+Then, remove NAs.
+Finally, export the resultant text in a .txt file.

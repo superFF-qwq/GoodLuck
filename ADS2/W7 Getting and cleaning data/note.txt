@@ -1,0 +1,13 @@
+TEST.DATE是chr，不能按照TEST.DATE分类，要转成numeric类型就可以按照这个分类了
+
+SPECIES should be quantitative data 应该储存成 factor variable 这样可以按照SPECIES分类
+
+location是两个characteristics要把它分开变成2列，而且后面有brackets要删掉
+
+如果是character类型那么na和null都检测不出来
+
+relocate(1,6) 把1和6列放到最前面
+
+table保存unique values in a vector or list
+
+location缺失的值可以用trapid相同的去估计，可能trap在到处移动，如果没有，可以用block值相同的去估计

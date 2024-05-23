@@ -1,0 +1,10 @@
+problem
+sample size
+data source
+sample size is too small
+the figure and the interpretion of does not match:
+figure 1 talked about kg, but the interpretion talked about percentage.
+Figure 4: The biggest problem!
+so many comparisons
+just one or two significant -> they write this paper
+no testing correction!

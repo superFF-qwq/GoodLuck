@@ -1,0 +1,95 @@
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+setwd("E:\\A大学\\大二下\\ADS2\\W26 5.6-5.10 Clustering and Machine Learning")
+
+data0 = read.csv("guests.csv")
+
+head(data0)
+
+n = nrow(data0)
+
+guests = data.frame(id = 1:n,
+                    x = data0$age_norm,
+                    y = data0$hours_norm,
+                    cluster = rep(0,n))
+
+plot(x = guests$x, y = guests$y)
+
+
+
+calc_dist = function(x1, y1, x2, y2){
+  return (sqrt((x1-x2)^2+(y1-y2)^2))
+}
+
+{
+k = 5
+id = sample(1:n, k)
+  
+centroids = data.frame(cluster = 1:k,
+                       x = guests$x[id],
+                       y = guests$y[id],
+                       size = rep(0,k))
+# centroids
+guests$cluster = rep(0,n)
+time = 0
+while(T){
+  flag = F
+  for(i in 1:n){
+    Dist = rep(0,k)
+    for(j in 1:k)
+      Dist[j] = calc_dist(guests$x[i], guests$y[i], centroids$x[j], centroids$y[j])
+    cluster = which.min(Dist)
+    if(cluster != guests$cluster[i]){
+      flag = T
+      guests$cluster[i] = cluster
+    }
+  }
+  if(flag == F)
+    break
+  # print(guests)
+  # print(flag)
+  for(j in 1:k){
+    centroids$x[j] = mean(guests$x[guests$cluster == j])
+    centroids$y[j] = mean(guests$y[guests$cluster == j])
+  }
+  guests$cluster = as.factor(guests$cluster)
+  g = ggplot(data = guests,
+             mapping = aes(x = x, y = y, color = cluster)) +
+    geom_point() +
+    geom_point(data = centroids,
+               mapping = aes(x = x, y = y),
+               shape = 3,
+               size = 2,
+               color = "red")
+  time = time + 1
+  name = paste0("kmeans", as.character(time))
+  name = paste0(name, ".png")
+  png(name, width=15, height=10, units="cm", pointsize=12, res=300)
+  print(g)
+  dev.off()
+}
+}
+
+guests
+
+# create a matrix containing the coordinates, because dist function can only
+# accept a matrix as a input
+data = matrix(data = c(data0$age_norm, data0$hours_norm), byrow = F, ncol = 2)
+# data
+
+# calculate the distance matrix using the function dist(matrix)
+dist_mat <- dist(data)
+
+# perform hierarchical clustering
+hc <- hclust(dist_mat)
+
+# visualize the dendrogram
+plot(hc, labels = data0$names, sub = "", xlab = "")
+
+# cut the dendrogram into k clusters  
+clusters <- cutree(hc, k = 2)  
+

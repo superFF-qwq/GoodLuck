@@ -1,0 +1,30 @@
+---
+title: "problemset12"
+author: "superFF"
+date: "2023-12-21"
+output: pdf_document
+---
+
+```{r include=F}
+library(knitr)
+library(tidyverse)
+library(cowplot)
+```
+
+```{r}
+mice=read.csv("mouse_report.csv");
+summary(mice$weight)
+summary(mice$age)
+```
+
+```{r fig.height=4}
+g1=ggplot(data=mice,mapping=aes(x=genotype,y=weight,color=genotype))+
+  geom_boxplot()+
+  labs(title="weight of mice by genotype")+
+  geom_jitter()
+g1
+g2=ggplot(data=mice,mapping=aes(x=genotype,y=age,color=genotype))
+g2=g2+geom_boxplot()
+g2=g2+labs(title="weight of mice by genotype")
+g2
+```

@@ -1,0 +1,82 @@
+---
+title: "Practical Week 12"
+author: "superFF"
+date: "2023-12-07"
+output: pdf_document
+---
+
+<center>
+## ***R markdown***
+</center>
+
+# first title
+
+## second title
+
+### third title
+
+I am the *best* student
+
+-   Prepare tutorial
+-   Go to class
+-   Revise lecture
+-   Finish ICA report
+
+1.  Eat breakfast
+2.  Eat lunch
+3.  Eat dinner
+4.  Sleep
+
+[*references*](https://zhuanlan.zhihu.com/p/586111689?utm_id=0) </br> [references](https://zhuanlan.zhihu.com/p/586111689?utm_id=0) </br> [**references**](https://zhuanlan.zhihu.com/p/586111689?utm_id=0)
+
+```{r}
+x=2
+y=3
+x+y
+```
+
+```{r eval=F}
+2+2
+```
+
+```{r echo=F}
+20+20
+```
+
+```{r}
+hist(rnorm(10000),col="tomato")
+```
+
+```{r}
+x
+```
+
+some text 'r code' some more text if needed
+
+```{r,fig.height=2.7, fig.width=9}
+dragons=read.csv(file="dragons.csv");
+hist(dragons$wingspan);
+```
+
+```{r}
+head(dragons)
+
+library(knitr)
+kable(head(dragons,5))
+
+kable(summary(dragons))
+
+mice=read.csv(file="mouse_report.csv");
+kable(mice[1:20,c("ID","weight","age")]);
+kable(summary(mice))
+```
+
+![a photo of bridge](Bridge.png){width="40%"}
+
+```{r chunk-name, out.width='100%', fig.align='center',fig.caption='The description of the figure.'}
+include_graphics(path = 'Bridge.png');
+```
+
+```{r}
+x+y # this is a non-emotional comment just for test!
+```

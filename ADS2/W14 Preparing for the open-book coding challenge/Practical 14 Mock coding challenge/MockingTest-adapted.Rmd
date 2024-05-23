@@ -1,0 +1,64 @@
+---
+title: "MockingTest-adapted"
+author: "superFF"
+date: "2024-01-09"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tinytex)
+library(rmarkdown)
+library(knitr)
+library(tidyverse)
+library(cowplot)
+setwd("E:\\A大学\\大二上\\ADS2\\Week 14 Preparing for the open-book coding challenge\\Practical 14 Mock coding challenge")
+```
+
+# 1. Stroop test
+
+## 1.1 Import the data and plot them in a useful way
+
+```{r}
+stroop = read.csv("stroop_test.csv")
+stroop$Time = as.factor(stroop$Time)
+g1.1 = ggplot(data = stroop,
+              mapping = aes(x = Time, y = Score)) +
+  geom_boxplot(mapping = aes(color = Time)) +
+  geom_point(mapping = aes(color = Time)) +
+  scale_color_manual(values = c("orange", "purple")) +
+  geom_jitter(width = 0.2,
+              mapping = aes(color = Time)) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 0.5))) +
+  theme(
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+
+g1.1
+```
+
+\begin{center}
+Figure 1. Score of the morning and the afternoon group.
+\end{center}
+
+## 1.2 Is there a difference in performance on the Stroop task between the morning and afternoon group?
+
+### T-test analysis of permance difference
+
+```{r}
+t.test(stroop$Score ~ stroop$Time, alternative = "two.sided")
+```
+
+### Interpretation of t-test results
+- H0: There is no difference in means between group Afternoon and group Morning.
+- HA: There is difference in means between group Afternoon and group Morning.
+- p-value=0.4978 > 0.05
+- We cannot reject H0.
+- There is insufficient evidence that there is difference in means between group Afternoon and group Morning.
+
+## 1.3 Name one way in which the study could be improved or followed up on.
+1. For one subject in the subject, test his or her score both in the morning and the afternoon.
+2. Then, use paired t-test to test whether there is performance difference.

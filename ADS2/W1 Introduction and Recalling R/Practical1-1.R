@@ -1,0 +1,33 @@
+DN=matrix(data=c(57.27,72.53,64.67,65.96,55.99,64.02,65.60,55.15,72.90,59.95,78.99,77.63,80.69,83.49,80.49,80.79,82.11,80.10,81.63,78.82),
+          ncol=1)
+rownames(DN)=1:20
+colnames(DN)="DN"
+#print(DN)
+DP=matrix(data=c(19.72,19.57,26.02,18.37,12.35,21.40,17.75,21.86,15.07,14.70,5.76,3.80,3.78,7.21,8.92,5.75,9.32,5.82,7.40,10.69),
+          ncol=1)
+rownames(DP)=1:20
+colnames(DP)="DP"
+#print(DP)
+SP=matrix(data=100-DP-DN,ncol=1)
+rownames(SP)=1:20
+colnames(SP)="SP"
+Dissection=matrix(data=c(rep("N",10),"S","S","N","N","N","S","N","S","S","N"),
+                  ncol=1)
+rownames(Dissection)=1:20
+colnames(Dissection)="Dissection"
+Group=matrix(data=c(rep("KO",10),rep("WT",10)),ncol=1)
+colnames(Group)="Group"
+## method1 ## data.frame的几个个体是相对独立的，所以不会统一数据类型
+#thymocytes=data.frame(Group,DN,DP,SP,Dissection)
+## method1 ##
+thymocytes=cbind(Group,DN,DP,SP,Dissection)
+thymocytes=as.data.frame(thymocytes)
+thymocytes$DP=as.numeric(thymocytes$DP)
+thymocytes$DN=as.numeric(thymocytes$DN)
+thymocytes$SP=as.numeric(thymocytes$SP)
+thymocytes$SP=format(thymocytes$SP,digits=2,nsmall=2)
+###thymocytes=format(thymocytes,justify="right")
+#print(thymocytes)
+#print(Dissection)
+write.csv(thymocytes,"C:/Users/Lenovo/Desktop/thymocytes1.csv")
+save(thymocytes,file="Practical1-1.Rdata")

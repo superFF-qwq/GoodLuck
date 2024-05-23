@@ -1,0 +1,15 @@
+Q1 - 22
+
+This is a good answer. You correctly clean the data and test the main assumptions of the t-test. You are correct to use a paired t-test, but you should also have stated that a one-tailed test is appropriate (although I note that you do actually run the one-tailed test). Your hypotheses make sense for the one-tailed test. You should have reversed the order of the variables for your test (or selected alternative = 'greater') in order to obtain the correct, significant result. Your final reporting is accurate for the (incorrect) test you run.
+
+Q2 - 20
+
+The data is very well processed and the plots are good but would be better if they combined the two days, since this is the relevant comparison. You've stated the data are not normally distributed but you haven't shown or tested this. The non-parametric test is the correct choice but you have incorrectly used a paired test. Paired should only be used when data is recorded in pairs of points measuring the same subject. The hypotheses are well stated and the result is well reported.
+
+Q3 - 19
+
+You arranged your data correctly. However, it would be better to add the results of checks where you look for the duplicated rows. In any case, good job! You checked the data reasonably well. It would be better to check *the difference* between measurements for normality. The plots you used make sense, but it would be better to plot the primary points for both groups when the grouping variable was on the X-axis, connect them to highlight that they were paired, and add a bit of jitter to avoid overplotting. You formulated a good set of hypotheses, but the one-sided ones should be avoided. The test choice is correct. The test was performed according to the hypotheses stated. The discussion of the results is good (it would be better to use a slightly different formula for Cohen's d and d = 0.46 is not very small, but rather detectable). The suggestion to add more variables is a good one. The suggestion to increase the sample size is not supported.
+
+Presentation - 24
+
+Successfully knitted. The code appears complete and reproducible, but don't leave commented out code. The original title is missing. Otherwise, it's well formatted, the figures are very well labelled, and there's very good explanatory text.

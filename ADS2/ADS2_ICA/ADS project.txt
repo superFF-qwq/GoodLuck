@@ -1,0 +1,13 @@
+第一部分
+Q1：
+	measure='Deaths', sex='Female',  age='40-44', cause='Alcohol use disorders', metric, year='2019'   已确定
+	location--val的关系
+Q2：measure='Prevalence', cause='Alcohol use disorders', location='East Asia & Pacific - WB'   已确定
+	对于不同的cause，val--age&year&sex的关系
+	是否需要对不同性别做statistics？
+Q3：measure='Prevalence', location='North America', cause='Opioid use disorders', year=
+	val--age&year的关系
+	怎么理解since the late 1990s？
+
+upper, lower怎么用？
+插入图表？

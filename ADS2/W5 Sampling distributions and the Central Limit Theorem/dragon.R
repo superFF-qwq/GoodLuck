@@ -1,0 +1,11 @@
+dice=function(){
+  sample(1:6,size=1)
+}
+main=function(){
+  #setwd("E:\A大学\大二上\ADS2\week5")
+  a=read.csv("dragons.csv")
+  #print(length(a$wingspan))
+  b=sample(a$wingspan,size=10)
+  hist(b)
+}
+main()

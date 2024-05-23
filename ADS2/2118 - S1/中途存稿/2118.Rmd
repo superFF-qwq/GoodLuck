@@ -1,0 +1,167 @@
+---
+title: '2118'
+author: '2118'
+date: "2024-01-10"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tinytex)
+library(rmarkdown)
+library(knitr)
+library(tidyverse)
+library(cowplot)
+setwd("C:\\Users\\Lenovo\\Desktop\\2118")
+```
+
+# 1. Benefits of swimming for long-distance runners
+
+```{r}
+swim = read.table("swimming.txt", sep = '\t', header = T)
+# head(swimming)
+# summary(swim)
+# str(swim)
+```
+
+## 1.1 Tidy the data and decide on suitable statistical test.
+
+### Any NA?
+
+```{r}
+anyNA(swim)
+which(!complete.cases(swim))
+length(rownames(swim[swim$names=="", ]))
+length(rownames(swim[swim$before_minutes=="", ]))
+length(rownames(swim[swim$before_seconds=="", ]))
+length(rownames(swim[swim$after_minutes=="", ]))
+length(rownames(swim[swim$after_seconds=="", ]))
+```
+
+- There is no NA.
+
+### Any duplicated?
+
+```{r}
+which(duplicated(swim))
+```
+
+- There is no duplicated.
+
+### Anything strange in data types?
+
+```{r}
+str(swim)
+```
+
+- Nothing strange in datatypes.
+
+### Any outlier? How are the before and after time distributed?
+
+```{r}
+swim[swim$before_minutes < 0 | swim$after_minutes < 0 |
+     swim$before_seconds < 0 | swim$after_seconds < 0 , ]
+before_time = swim$before_minutes * 60 + swim$before_seconds
+before_time = as.integer(before_time)
+after_time = swim$after_minutes * 60 + swim$after_seconds
+after_time = as.integer(after_time)
+hist(before_time, xlab = "before time (s)")
+hist(after_time, xlab = "after time (s)")
+hist(before_time - after_time, xlab = "improvement time(s)",
+     main = "Histogram of the improvement time")
+swim2 = data.frame(swim$names, before_time, after_time)
+# head(swim2)
+```
+
+- There is no outlier.
+- The before_time, the after_time and the improvement time (the difference between
+the after_time and the before_time) are all normally distributed.
+- Since every person in the data has a before_time and an after_time,
+the 2 values are paired.
+- We decided to use the paired 2-sample t-test.
+
+## 1.2 The null and alternative hypotheses
+
+- The null hypothesis (H0): The time used for the half-marathon after
+the swimming training is no shorter than that before the swimming training.
+- The alternative hypothesis (HA) : The time used for the half-marathon after
+the swimming training is shorter than that before the swimming training.
+
+## 1.3 Is there a statistically significant improvement on runners’ times after swimming?
+
+```{r}
+t.test(after_time, before_time, paired = T, alternative = "less")
+```
+- p = 0.9964 > 0.05
+- We cannot reject the null hypothesis.
+- There is insufficient evidence to conclude that the time used for the half-marathon after the swimming training is shorter than that before the swimming training.
+- Therefore, there is not a statistically significant improvement on runners’ times after swimming.
+
+
+
+# 2. Number of emergency room admissions
+
+## 2.1 Import the dataset and plot the data in a useful way
+
+```{r}
+hosp = read.csv("hospital_admissions.csv")
+# head(hosp)
+# str(hosp)
+hosp$week = as.factor(hosp$week)
+hosp$weekday = as.factor(hosp$weekday)
+
+hosp1 = aggregate(hosp$patients_per_hour,
+                  by = list(hosp$week, hosp$weekday),
+                  FUN = sum)
+names(hosp1)[1] = "week"
+names(hosp1)[2] = "weekday"
+names(hosp1)[3] = "patients"
+# str(hosp1)
+# summary(hosp1)
+g2.1 = ggplot(data = hosp1[hosp1$weekday == "Monday",],
+            mapping = aes(x = week, y = patients)
+            )
+g2.1 = g2.1 + geom_bar(stat="identity", fill = "orange")
+g2.1
+```
+
+\begin{center}
+Figure 2.1: Patients on Monday during the year.
+\end{center}
+
+```{r}
+g2.2 = ggplot(data = hosp1[hosp1$weekday == "Sunday",],
+            mapping = aes(x = week, y = patients)
+            )
+g2.2 = g2.2 + geom_bar(stat="identity", fill = "purple")
+g2.2
+```
+
+\begin{center}
+Figure 2.2: Patients on Sunday during the year.
+\end{center}
+
+## Is there a difference in patient admission rates between Mondays and Sundays?
+
+- We first form the null (H0) and alternative (HA) hypothesis for this question.
+- H0: There is no difference in patient admission rates between Mondays and Sundays.
+- HA: The patient admission rate on Mondays is different from that on Sundays.
+- We can see that the patients on both Monday and Sunday during the year
+are not normally distribution.
+- Therefore, We use paired Wilcoxon test.
+
+```{r}
+# hosp1[hosp1$weekday == "Monday",]$week ==
+# hosp1[hosp1$weekday == "Sunday",]$week
+wilcox.test(hosp1[hosp1$weekday == "Monday",]$patients, 
+            hosp1[hosp1$weekday == "Sunday",]$patients,
+            alternative = 'two.sided',paired = T) 
+```
+
+- p-value = 2.299e-09 < 0.05
+- We cannot reject H0.
+- There is insufficient evidence to conclude that
+the patient admission rate on Mondays is different from that on Sundays.
+- Therefore, there is not a significant difference in patient admission rates between Mondays and Sundays.
+
+# 

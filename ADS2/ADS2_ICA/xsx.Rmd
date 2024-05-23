@@ -1,0 +1,101 @@
+---
+title: "ADS_groupwork"
+author: "Samuel"
+date: "2024-03-13"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install all the packages needed
+#install.packages("dplyr")
+#install.packages("ggsci")
+#install.packages("reshape2")
+```
+
+Read the data first
+
+```{r,include = FALSE}
+library(dplyr)
+library(magrittr)
+data_raw<-read.csv("C:/Users/Samuel/Downloads/substance_use.csv")
+```
+
+# Part 1: Exploring the data
+
+## Question 1
+
+```{r}
+alcohol_data<- data_raw %>% filter(year==2019 & sex =="Male" &
+        age=="40 to 44" & cause=="Alcohol use disorders" & measure=="Deaths")
+head(alcohol_data)
+# comparing
+highest_rate<-sort(alcohol_data$val,decreasing = TRUE)[1]
+alcohol_data %>% filter(val == highest_rate) %>% select(location) #result
+```
+
+It show that Europe & Central Asia is the region of the world has the highest rate of alcohol-related deaths among men aged 40-44.
+
+## Question 2
+
+```{r}
+library(ggplot2)
+alcoholdisease_man<- data_raw %>% filter(location =="East Asia & Pacific - WB" &
+         cause=="Alcohol use disorders" & measure=="Prevalence" & sex== "Male")
+
+alcoholdisease_woman<- data_raw %>% filter(location =="East Asia & Pacific - WB" 
+ & cause=="Alcohol use disorders" & measure=="Prevalence" & sex== "Female")
+#plot it
+ggplot(data = alcoholdisease_man, aes(x=year,y=val,color=age)) + 
+  geom_line(linewidth=1) +theme_bw()
+
+ggplot(data = alcoholdisease_woman, aes(x=year,y=val,color=age)) + 
+  geom_smooth(method = "auto", se = FALSE) +theme_bw() #2 method choose which
+
+#comparing between male and female
+man_rate<-alcoholdisease_man %>% select(val)
+woman_rate<-alcoholdisease_woman %>% select(val)
+result_comparing<-cbind(man_rate,woman_rate)
+colnames(result_comparing)= c("man","woman")
+library(reshape2)
+result_comparing = melt(result_comparing,id.vars = c()) 
+colnames(result_comparing)= c("sex","rate_")
+
+result_comparing$sex = as.factor(result_comparing$sex)
+ggplot(data = result_comparing,aes(x=sex,y=rate_))+geom_boxplot()+theme_bw()
+```
+
+There is a significant difference between men and women at the prevalence of alcohol-related disease in the East Asia and Pacific region
+
+## Question 3
+
+\normalsize There is not specific "the United States" in the column "location". So the most related region "North America" is chosen.
+
+```{r}
+library(ggsci)
+#美化包
+opioid_use<- data_raw %>% filter(location =="North America" 
+ & cause=="Opioid use disorders" & measure=="Prevalence")
+
+ggplot(data = opioid_use, aes(x=year,y=val,color=age,linetype =sex)) + 
+  geom_line(linewidth=0.7,alpha =0.8) +theme_bw()+scale_color_npg()
+
+
+result_cor_num<-c()
+age_group<-unique(opioid_use$age)
+
+for (i in age_group){
+  for(j in c("Male","Female")){
+opioid_use_<-opioid_use %>% filter(sex==j & age==i)
+result_cor_num<-append(result_cor_num,cor(opioid_use_$year,opioid_use_$val,
+                                          method="pearson",use="complete.obs"))}}
+
+
+result_cor<-data.frame(Sex=rep(c("Male","Female"),length(age_group)),
+                       Age=rep(age_group,each=2),cor_num=result_cor_num)
+result_cor
+```
+
+\large From the figure we can see in both Female and Male group age 25-29 is most affected\large

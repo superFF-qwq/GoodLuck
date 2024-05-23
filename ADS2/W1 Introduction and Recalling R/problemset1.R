@@ -1,0 +1,14 @@
+load("Practical1-1.Rdata")
+m21=c("KO",13,54,NA,NA)
+m22=c("KO",15.54,42,NA,NA)
+m23=c("WT",8.67,85.4,NA,NA)
+m24=c("WT",7.87,77.45,NA,NA)
+m25=c("WT",9.5,80.21,NA,NA)
+thymocytes=rbind(thymocytes,m21,m22,m23,m24,m25)
+thymocytes[,"DN"]=as.numeric(thymocytes[,"DN"])
+thymocytes[,"DP"]=as.numeric(thymocytes[,"DP"])
+thymocytes[,"SP"]=as.numeric(thymocytes[,"SP"])
+thymocytes[,"SP"]=100-thymocytes[,"DN"]-thymocytes[,"DP"]
+#thymocytes[,"SP"]=100-thymocytes[,"DP"]-thymocytes[,"DN"]
+#print(thymocytes)
+#write.csv(thymocytes,file="problemset1.csv")

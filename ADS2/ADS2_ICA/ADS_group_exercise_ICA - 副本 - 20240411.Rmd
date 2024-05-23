@@ -1,0 +1,395 @@
+---
+title: "ADS2 Group Exercise ICA"
+author: "Group 6"
+date: "2024-04-02"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F)
+setwd("E:\\A大学\\大二下\\ADS2\\ADS2_ICA")
+library(ggplot2)
+library(dplyr)
+library(zoo)
+library(tidyverse)
+library(tidyr)
+library(knitr)
+library(stringr)
+```
+
+```{r}
+substance_use = read.csv("substance_use.csv")
+```
+
+# Part 1: Exploring the data
+
+In this part, we will answer the questions given in the guidance.
+
+## Question 1
+
+**Description**
+
+In 2019, what region of the world has the highest rate of alcohol-related deaths among men aged 40-44?
+
+**Method**
+
+First, we need to extract the data of the alcohol-related death rate among men aged 40-44.
+
+We use pipeline operations to construct the code, which avoids excess intermediate variables, enhances readability and makes the logical relationship clearer.
+
+```{r}
+highest_alcohol_deaths = substance_use %>%
+  filter(measure == "Deaths", year == 2019, age == "40 to 44",
+         sex == "Male", cause == "Alcohol use disorders") %>%
+  # Filter the data
+  select(location, val) %>%
+  arrange(desc(val)) %>%
+  # Sort by death rate in descending order
+  top_n(1, val)
+
+highest_alcohol_deaths
+```
+
+**Conclusion**
+
+In 2019, Europe & Central Asia has the highest rate of alcohol-related deaths among men aged 40-44.
+
+## Question 2
+
+**Description**
+
+Looking at the prevalence of alcohol-related disease in the East Asia and Pacific region, how has this changed over time and in the different age groups? Is there a difference between men and women?
+
+**Method**
+
+First, we extract the data from different years, age groups and sex groups, and calculate the average prevalence rate in case of more than one values with identical attributes.
+
+```{r}
+eap_alcohol_data = substance_use %>%
+  filter(measure == "Prevalence", cause == "Alcohol use disorders",
+         location == "East Asia & Pacific - WB") %>%
+  select(year, age, sex, val)
+```
+
+Next, we visualize the data from different years, age groups and sex groups. We visualize the data in two ways, faceting the plots by age groups and by sex groups. We do not mix the data together by using the average number, because populations from different age groups and sex groups are different.
+
+```{r}
+#eap_alcohol_trends1 = eap_alcohol_trends %>% paste0(.$age, " years old")
+eap_alcohol_data1 = eap_alcohol_data
+eap_alcohol_data1$age = paste0(eap_alcohol_data1$age, " years old")
+ggplot(eap_alcohol_data1,
+       aes(x = year, y = val, color = sex,
+           group = interaction(sex, age))) +
+  geom_line() +
+  facet_wrap(~age, scales = 'free_y') +
+  # Use the panel diagram to show the different age groups
+  labs(x = "Year",
+       y = "Prevalence (%)",
+       color = "Sex") +
+  theme(legend.position = "right",
+        plot.title = element_text(hjust = 0.5)
+        )
+```
+
+Figure 2.1: The trends of the alcohol-related disease prevalence in east Asia and Pacific. The plots in this figure are faceted by age groups, better for visually comparing the prevalence between the male and the female.
+
+```{r}
+ggplot(eap_alcohol_data,
+       aes(x = year, y = val, color = age,
+           group = interaction(sex, age))) +
+  geom_line() +
+  geom_point(size = 0.5) +
+  facet_wrap(~sex, scales = 'free_y') +
+  # Use the panel diagram to show the different sex groups
+  labs(x = "Year",
+       y = "Prevalence (%)",
+       color = "Age (years old)") +
+  theme(#legend.position = "bottom",
+        #legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)
+        )
+```
+
+Figure 2.2: The trends of the alcohol-related disease prevalence in east Asia and Pacific. The plots in this figure are faceted by sex groups, better for visually comparing the prevalence between different age groups.
+
+From the two plots, you can see how the prevalence of alcohol-related disease in the East Asia and Pacific region and in different age groups. Also, you can clearly identify different patterns of the prevalence between male and female.
+
+In the following, we will validate the difference between male and female in a more statistical way.
+
+First, we formulate the hypotheses.
+
+-   The null hypothesis (H0): There is no difference in the prevalence of different age groups between male and female.
+-   The alternative hypothesis (HA): There is difference in the prevalence of different age groups between male and female.
+
+The data for male and female in the same year are correlated and paired (i.e. observational data under the same conditions), and we want to test the differences in prevalence between male and female in each year, so we will use the paired statistical test in the following. We use the Shapiro test to test the normality of the differences in prevalence between male and female.
+
+-   If the differences are normally distributed, we will perform the parametric Student's t-test to test the hypotheses.
+-   If the differences are not normally distributed, we will perform the non-parametric Wilcoxon test to test the hypotheses.
+
+```{r}
+eap_alcohol_data2 = eap_alcohol_data %>%
+  group_by(age) %>%
+  group_split() %>%
+  map(~spread(., key = "sex", value = "val")) %>%
+  # Convert to the wide format
+  map(~{
+    shapiro_p = shapiro.test(.$Male - .$Female)$p.value
+    if(shapiro_p < 0.05){
+      test_type = "Wilcoxon test"
+      p_value = wilcox.test(.$Male, .$Female, paired = T)$p.value
+    }
+    else{
+      test_type = "Student's t-test"
+      p_value = t.test(.$Male, .$Female, paired = T)$p.value
+    }
+    tibble(shapiro_p = shapiro_p,
+           test_type = test_type,
+           p_value = p_value)
+  }) %>%
+  # perform statistical test in all age groups
+  bind_rows() %>%
+  mutate(age = unique(eap_alcohol_data$age), .before = shapiro_p)
+eap_alcohol_data2
+```
+
+**Conclusion**
+
+Of all the age groups, the p values from the statistical test are all less than $10^{-8}$. Therefore, we reject the null hypothesis(H0). There is sufficient evidence to support the conclusion that there are significant differences in the prevalence between the male and the female within each age group.
+
+## Question 3
+
+**Description**
+
+In the United States, there is talk of an “Opioid epidemic”. Part of the problem is that since the late 1990s, doctors have increasingly been prescribing pain killers which can be highly addictive. Looking at the data from the United States, can you confirm an increase in the prevalence of diseases related to opioid use? What age group is the most affected?
+
+**Method**
+
+There is no data named "United States" in the locations, because the locations are divided according to the world bank. Therefore, we extract the data from "North America" to represent the data from the United States.
+
+According to the question, since we have the data from 1990 to 2019, we will separate the data into two parts "before the start of increasing prescription the opioid" (1990-1997) and "after the start of increasing prescription the opioid" (1998-2019). We will abbreviate the two periods to the "before" period and the "after" period in the following.
+
+```{r}
+opioid_use_na = substance_use %>%
+  filter(measure == "Prevalence",
+         location == "North America",
+         cause == "Opioid use disorders") %>%
+  select(age, year, sex, val)
+```
+
+Next, we visualize the data from different years, age groups and sex groups. We visualize the data in two ways, faceting the plots by age groups and by sex groups.
+
+```{r}
+opioid_use_na1 = opioid_use_na
+opioid_use_na1$age = paste0(opioid_use_na1$age, " years old")
+ggplot(opioid_use_na1,
+       aes(x = year, y = val, color = sex,
+           group = interaction(sex, age))) +
+  geom_line() +
+  geom_vline(xintercept = 1998, color = "grey") +
+  facet_wrap(~age, scales = 'free_y') +
+  # Use the panel diagram to show the different age groups
+  labs(x = "Year",
+       y = "Prevalence (%)",
+       color = "Sex") +
+  theme(legend.position = "right",
+        plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45)
+        )
+```
+
+Figure 3.1: The trends of the opioid use related disease prevalence in North America. The plots in this figure are faceted by age groups, better for visually comparing the prevalence between the male and the female.
+
+```{r}
+ggplot(opioid_use_na,
+       aes(x = year, y = val, color = age,
+           group = interaction(sex, age))) +
+  geom_line() +
+  geom_point(size = 0.5) +
+  geom_vline(xintercept = 1998, color = "grey") +
+  facet_wrap(~sex, scales = 'free_y') +
+  # Use the panel diagram to show the different sex groups
+  labs(x = "Year",
+       y = "Average Prevalence (%)",
+       color = "Age (years old)") +
+  theme(#legend.position = "bottom",
+        #legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)
+  )
+```
+
+Figure 3.2: The trends of the opioid use related disease prevalence in North America. The plots in this figure are faceted by sex groups, better for visually comparing the prevalence between different age groups.
+
+From Figure 3.1 and Figure 3.2, we can identify that there is an overall increase pattern within each age and sex group. Since the prevalence of the "before" and "after" period are both increasing, and we want to confirm whether the increasing prescription the opioid has an effect on the prevalence, we should compare the speed (slope) of the increase of the prevalence rather than the prevalence itself. If the prevalence of the "after" period is increasing faster than the prevalence of the "before" period, the increasing prescription of the opioid may have an effect.
+
+To test whether the slope of the prevalence of the "before" period is different from the slope of the prevalence of the "after" period, we formulate the hypotheses.
+
+-   The null hypothesis (H0): There is no difference in the slope of the prevalence between the "before" period and the "after" period.
+-   The alternative hypothesis (HA): There is a difference in the slope of the prevalence between the "before" period and the "after" period.
+
+Because the sampling is random, we will use the two-tailed Wilcoxon rank sum test to test the hypotheses.
+
+```{r}
+opioid_use_na2 = opioid_use_na %>%
+  group_by(sex, age) %>%
+  group_split() %>%
+  map(~{
+    before = diff(.$val[.$year < 1998])
+    after = diff(.$val[.$year >= 1998])
+    # calculate the slope
+    tibble(
+      sex = .$sex[1],
+      age = .$age[1],
+      p_value = wilcox.test(after, before)$p.value,
+      effect_size = median(after) - median(before)
+    )
+  }) %>%
+  bind_rows() %>%
+  group_by(sex) %>%
+  group_split()
+opioid_use_na2
+```
+
+Table 3.1: The age (age), the sex (sex), the p value (p_value) and the effect size (effect_size) of the the Wilcoxon rank sum test for each group.
+
+From Table 3.1, within each age and sex group, the p value of the Wilcoxon rank sum test is larger than 0.05, we cannot reject the null hypothesis (H0). There is insufficient evidence to conclude that there is a difference in the slope of the prevalence between the "before" period and the "after" period.
+
+However, if we do not consider the sex as a covariate, we will take the average of the prevalence of male and female to represent the prevalence of the whole population within each age group, as the ratio of the male population and the female population within each age group of the divided locations is approximately 1:1.
+
+```{r}
+opioid_use_na3 = opioid_use_na %>%
+  group_by(year, age) %>%
+  summarize(val = mean(val)) %>%
+  group_by(age) %>%
+  group_split() %>%
+  map(~{
+    before = diff(.$val[.$year < 1998])
+    after = diff(.$val[.$year >= 1998])
+    # calculate the slope
+    tibble(
+      age = .$age[1],
+      p_value = wilcox.test(after, before)$p.value,
+      effect_size = median(after) - median(before)
+    )
+  }) %>%
+  bind_rows()
+opioid_use_na3
+```
+
+Table 3.2: The age (age), the p value (p_value) and the effect size (effect_size) of the the Wilcoxon rank sum test for each group.
+
+From Table 3.2, when we do not take the sex as a covariate, we can identify that except 25-29 age group, the p-values for the other age groups are all smaller than 0.05, so we can reject the null hypothesis (H0). Therefore, except 25-29 age group, there is sufficient evidence to conclude that there is a difference in the slope of the prevalence between the "before" period and the "after" period. Additionally, as the effect size (after - before) are all larger than 0, so we can confirm that the increasing prescription of the opioid can accelerate the increase in the prevalence of the opioid use disease except 25-29 age group.
+
+From Figure 3.1 and Figure 3.2, we can assume that there is a linear relationship between the year and the prevalence. We want to use the linear regression model to fit the data, and we test the normality and the homoscedastic of the residuals. To find which age group is the most affected, we compare the difference in the slope of the "before" and "after" period except 25-29 age group.
+
+As the "Multiple R-squared" value in the linear regression model represents the proportion of the variability of the dependent variable explained by the model, will set the threshold of the "Multiple R-squared" as 0.7 (recommended in the ADS2 Lecture 2.6 Slide Page 29).
+
+```{r}
+opioid_use_na4 = opioid_use_na %>%
+  filter(age != "25 to 29") %>%
+  group_by(year, age) %>%
+  summarize(val = mean(val)) %>%
+  group_by(age) %>%
+  group_split() %>%
+  map(~{
+    before_data = filter(., year < 1998)
+    after_data = filter(., year >= 1998)
+    before = summary(lm(val ~ year, before_data))
+    after = summary(lm(val ~ year, after_data))
+    tibble(age = .$age[1],
+           before_r_squ = before$r.squared,
+           before_slope = before$coefficients[2],
+           after_r_squ = after$r.squared,
+           after_slope = after$coefficients[2],
+           slope_diff = after_slope - before_slope
+           )
+  }) %>%
+  bind_rows() %>%
+  arrange(desc(slope_diff))
+opioid_use_na4
+```
+
+Table 3.3: The age (age), the "Multiple r-squared" of the "before" period (before_r_squ), the slope of the prevalence in the "before" period (before_slope), the "Multiple r-squared" of the "after" period (after_r_squ), the slope of the prevalence in the "after" period (after_slope), and the difference in the slope between the "before" and "after" period (slope_diff).
+
+From Table 3.3, because the "Multiple r-squared" values are all greater than 0.7 except 65-69 age group (the "before" period), we can compare the difference in the slope between the "before" and "after" period except 65-69 age group. The 30-34 age group has the large difference in the slope of the prevalence of the opioid use disease, so the 30-34 age group is the most affected.
+
+You can use either of the two methods
+
+```{r, eval = FALSE}
+plot(model, 1)
+shapiro.test(model$residuals)
+```
+
+to further verify the normality the residuals of this model.
+
+You can use
+
+```{r, eval = FALSE}
+plot(model, 2)
+```
+
+to further verify whether the residuals of this model are homoscedastic.
+
+Due to the page limit, we do not show the normality and homoscedastic result of the models.
+
+**Conclusion**
+
+If we take the sex as a covariate, we cannot confirm the increasing prescription of the opioid can accelerate the increase in the prevalence of the opioid use disease in each age group. If we do not take the sex as a covariate, we can confirm that the increasing prescription of the opioid can accelerate the increase in the prevalence of the opioid use disease except 25-29 age group, and the 30-34 age group is the most affected.
+
+```{r}
+head(substance_use)
+data1 = substance_use %>%
+  filter(sex == "Male", measure == "Deaths",
+         cause == "Alcohol use disorders") %>%
+  #, age == "25 to 29"
+  select(location, age, sex, year, val)
+
+data1$location = as.factor(data1$location)
+data1$age = as.factor(data1$age)
+data1$sex = as.factor(data1$sex)
+data1$location = sub(data1$location, pattern = " - WB", replacement = "")
+
+ggplot(data = data1,
+       aes(x = location, y = val, color = location)) +
+  geom_boxplot() +
+  geom_point(position = position_jitterdodge(jitter.width = 2.2),
+             size = 0.6) +
+  theme(axis.text.x = element_blank())
+```
+
+```{r}
+model1 = lm(val ~ location * age, data = data1)
+
+shapiro.test(resid(model1))
+
+plot(model1, 1)
+
+summary(model1)
+
+# index = c(32, 597, 1605)
+# 
+# data2 = data1[-index, ]
+# nrow(data2)
+# nrow(data1)
+# 
+# # data2 = data1
+# # data2$val = log2(data2$val + 1)
+# model2 = aov(val ~ location * age, data = data2)
+ 
+#shapiro.test(resid(model2))
+ 
+#plot(model2, 1)
+
+#summary(model)
+
+#TukeyHSD(model)
+
+#levels(data2$age)
+#levels(data2$sex)
+#model2 = aov(val ~ location + age, data = data2)
+
+#plot(model2, 1)
+
+#anova(model, model2)
+```

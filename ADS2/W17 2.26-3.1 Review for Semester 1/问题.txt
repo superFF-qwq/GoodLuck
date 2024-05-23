@@ -1,0 +1,2 @@
+1. Question1 H0和HA居然合起来不是全集，H0感觉写错了
+2.按照dymtro的说法，对于question3生成alternative肯定是错的，因为他先看了数据，分析了数据之后才形成的hypothesis

@@ -1,0 +1,233 @@
+---
+title: "ADS2 Group Exercise ICA"
+author: "Group 6"
+date: "2024-04-02"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F)
+setwd("E:\\A大学\\大二下\\ADS2")
+library(ggplot2)
+library(dplyr)
+library(zoo)
+library(tidyverse)
+library(tidyr)
+```
+
+# Part 1: Exploring the data
+
+In this part, we will answer the questions given in the guidance.
+
+## Question 1
+
+**Description**
+
+In 2019, what region of the world has the highest rate of alcohol-related deaths among men aged 40-44?
+
+**Method**
+
+First, we need to extract the data of the alcohol-related death rate among men aged 40-44.
+
+We use pipeline operations to construct the code, which avoids excess intermediate variables, enhances readability and makes the logical relationship clearer.
+
+```{r}
+substance_use = read.csv("substance_use.csv")
+
+highest_alcohol_deaths = substance_use %>%
+  filter(measure == "Deaths", year == 2019, age == "40 to 44",
+         sex == "Male", cause == "Alcohol use disorders")
+  # Filter the data
+
+highest_alcohol_deaths
+```
+
+In this dataset, there are not two rows with identical location but different measurement values. However, if another dataset has such rows, we decided to calculate the average death rate as the the measurement value for each location.
+
+```{r}
+highest_alcohol_deaths = highest_alcohol_deaths %>%
+  group_by(location) %>%
+  # Group by "location" so that the average death rate can be calculated
+  # separately for each location
+  summarize(average_death_rate = mean(val)) %>%
+  # The data for each location were aggregated and the average death rate was calculated
+  arrange(desc(average_death_rate)) %>%
+  # Sort by average death rate in descending order
+  top_n(1, average_death_rate)
+  # Select the region with the highest average death rate
+
+highest_alcohol_deaths
+```
+
+**Conclusion**
+
+In 2019, Europe & Central Asia has the highest rate of alcohol-related deaths among men aged 40-44.
+
+## Question 2
+
+**Description**
+
+Looking at the prevalence of alcohol-related disease in the East Asia and Pacific region, how has this changed over time and in the different age groups? Is there a difference between men and women?
+
+**Method**
+
+First, we extract the data from different years, age groups and sex groups, and calculate the average prevalence rate in case of more than one values with identical attributes.
+
+```{r}
+eap_alcohol_data = substance_use %>%
+  filter(measure == "Prevalence", cause == "Alcohol use disorders",
+         location == "East Asia & Pacific - WB")
+eap_alcohol_trends = eap_alcohol_data %>%
+  group_by(year, age, sex) %>%
+  summarize(average_prevalence = mean(val, na.rm = TRUE)) %>%
+  # The change of prevalence over time and age group was analyzed and compared by sex
+  ungroup()
+  # Remove the group status
+```
+
+Next, we visualize the data from different years, age groups and sex groups. We visualize the data in two ways, faceting the plots by age groups and by sex groups. We do not mix the data together by using the average number, because populations from different age groups and sex groups are different.
+
+```{r}
+#eap_alcohol_trends1 = eap_alcohol_trends %>% paste0(.$age, " years old")
+eap_alcohol_trends1 = eap_alcohol_trends
+eap_alcohol_trends1$age = paste0(eap_alcohol_trends1$age, " years old")
+ggplot(eap_alcohol_trends1,
+       aes(x = year, y = average_prevalence, color = sex,
+           group = interaction(sex, age))) +
+  geom_line() +
+  facet_wrap(~age, scales = 'free_y') +
+  # Use the panel diagram to show the different age groups
+  labs(x = "Year",
+       y = "Average Prevalence (%)",
+       color = "Sex") +
+  theme(legend.position = "right",
+        plot.title = element_text(hjust = 0.5)
+        )
+```
+
+Figure 1: The trends of alcohol-related disease prevalence in east Asia and Pacific. The plots in this figure are faceted by age groups, better for visually comparing the prevalence between the male and the female.
+
+```{r}
+ggplot(eap_alcohol_trends,
+       aes(x = year, y = average_prevalence, color = age,
+           group = interaction(sex, age))) +
+  geom_line() +
+  facet_wrap(~sex, scales = 'free_y') +
+  # Use the panel diagram to show the different age groups
+  labs(x = "Year",
+       y = "Average Prevalence (%)",
+       color = "Age (years old)") +
+  theme(legend.position = "bottom",
+        legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)
+        )
+```
+
+Figure 2: The trends of alcohol-related disease prevalence in east Asia and Pacific. The plots in this figure are faceted by sex groups, better for visually comparing the prevalence between different age groups.
+
+From the two plots, you can see how the prevalence of alcohol-related disease in the East Asia and Pacific region and in different age groups. Also, you can clearly identify different patterns of the prevalence between male and female.
+
+Further, to validate the difference between male and female more statistically. First, we formulate the hypotheses.
+
+-   The null hypothesis (H0): There is no difference in the prevalence of different age groups between male and female.
+-   The alternative hypothesis (HA): There is difference in the prevalence of different age groups between male and female.
+
+The data for male and female in the same year are correlated and paired (i.e. observational data under the same conditions), and we want to test the differences in prevalence between male and female in each year, so we will use the paired statistical test in the following. We use the Shapiro test to test the normality of the differences in prevalence between male and female.
+
+-   If the differences are normally distributed, we will perform the parametric Student's t-test to test the hypotheses.
+-   If the differences are not normally distributed, we will perform the non-parametric Wilcoxon test to test the hypotheses.
+
+```{r}
+eap_alcohol_data2 = eap_alcohol_data %>%
+  select(year, age, sex, val) %>%
+  group_by(age) %>%
+  group_split() %>%
+  map(~spread(., key = "sex", value = "val")) %>%
+  # Convert to the wide format
+  map(~{
+    shapiro_p = shapiro.test(.$Male - .$Female)$p.value
+    if(shapiro_p < 0.05){
+      test_type = "Wilcoxon test"
+      p_value = wilcox.test(.$Male, .$Female, paired = T)$p.value
+    }
+    else{
+      test_type = "Student's t-test"
+      p_value = t.test(.$Male, .$Female, paired = T)$p.value
+    }
+    tibble(shapiro_p = shapiro_p,
+              test_type = test_type,
+              p_value = p_value)
+  }) %>%
+  # perform statistical test in all age groups
+  bind_rows() %>%
+  mutate(age = unique(eap_alcohol_data$age), .before = shapiro_p)
+eap_alcohol_data2
+```
+
+**Conclusion**
+
+Of all the age groups, the p values from the statistical test are all less than $10^{-8}$. Therefore, we reject the null hypothesis(H0). There is sufficient evidence to support the conclusion that there are significant differences in the prevalence between the male and the female within each age group.
+
+## Question 3
+
+**Description**
+
+In the United States, there is talk of an “Opioid epidemic”. Part of the problem is that since the late 1990s, doctors have increasingly been prescribing pain killers which can be highly addictive. Looking at
+the data from the United States, can you confirm an increase in the prevalence of diseases related to opioid use? What age group is the most affected?
+
+**Method**
+
+Since there is no data named "United States" in the location column, we extract the data from "North America". Because the problem requires us to analyze the data since the late 1990s, we extract the data since 1998. As the population of the male and the female are not known to be equal, the data cannot be mixed by simply calculating the average number.
+
+```{r}
+opioid_use_na = substance_use %>%
+  filter(measure == "Prevalence",
+         location == "North America",
+         cause == 'Opioid use disorders',
+         year >= 1998)
+opioid_trends_na = opioid_use_na %>%
+  group_by(year, age, sex) %>%
+  summarize(average_prevalence = mean(val)) %>%
+  ungroup()
+```
+
+Next, we visualize the data from different years, age groups and sex groups. We visualize the data in two ways, faceting the plots by age groups and by sex groups.
+
+```{r}
+opioid_trends_na1 = opioid_trends_na
+opioid_trends_na1$age = paste0(opioid_trends_na1$age, " years old")
+ggplot(opioid_trends_na1,
+       aes(x = year, y = average_prevalence, color = sex,
+           group = interaction(sex, age))) +
+  geom_line() +
+  facet_wrap(~age, scales = 'free_y') +
+  # Use the panel diagram to show the different age groups
+  labs(x = "Year",
+       y = "Average Prevalence (%)",
+       color = "Sex") +
+  theme(legend.position = "right",
+        plot.title = element_text(hjust = 0.5)
+        )
+```
+
+Figure 3: The trends of opioid use related disease prevalence in North America. The plots in this figure are faceted by age groups, better for visually comparing the prevalence between the male and the female.
+
+```{r}
+ggplot(opioid_trends_na,
+       aes(x = year, y = average_prevalence, color = age,
+           group = interaction(sex, age))) +
+  geom_line() +
+  facet_wrap(~sex, scales = 'free_y') +
+  # Use the panel diagram to show the different age groups
+  labs(x = "Year",
+       y = "Average Prevalence (%)",
+       color = "Age (years old)") +
+  theme(legend.position = "bottom",
+        legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5)
+  )
+```
+
+Figure 4: The trends of opioid use related disease prevalence in North America. The plots in this figure are faceted by sex groups, better for visually comparing the prevalence between different age groups.
